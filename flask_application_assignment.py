@@ -63,5 +63,40 @@ def add_movie():
 
     return render_template('add_movie.html')
 
+@app.route('/edit_movie/<int:movie_id>', methods=['GET', 'POST'])
+def edit_movie(movie_id):
+    movie = Movie.query.get(movie_id)
+
+    if request.method == 'POST':
+        # get items from form
+        title = request.form.get('title', '').strip()
+        director = request.form.get('director', '').strip()
+        year = request.form.get('year', '').strip()
+        genre = request.form.get('genre', '').strip()
+
+        try:
+            year_val = int(year) if year else None
+        except ValueError:
+            return redirect(url_for('edit_movie', movie_id=movie_id))
+
+        # Create a new movie entry
+        movie.title = title
+        movie.director = director or None
+        movie.year = year_val
+        movie.genre = genre or None
+
+        db.session.commit()
+
+        return redirect(url_for('index'))
+
+    return render_template('add_movie.html', movie=movie)
+
+@app.route('/delete_movie/<int:movie_id>', methods=['POST'])
+def delete_movie(movie_id):
+    movie = Movie.query.get_or_404(movie_id)
+    db.session.delete(movie)
+    db.session.commit()
+    return redirect(url_for('index'))
+
 if __name__ == '__main__':
     app.run(debug=True)
