@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies</title>
+</head>
+<body>
+    <h1>Movies List</h1>
+
+    <!-- Displaying all movies -->
+    {% if movies %}
+        <ul>
+            {% for movie in movies %}
+                <li>
+                    <strong>{{ movie.title }}</strong>
+                    {% if movie.year %} ({{ movie.year }}){% endif %}
+                    {% if movie.director %} - Directed by {{ movie.director }}{% endif %}
+                    {% if movie.genre %} - Genre: {{ movie.genre }}{% endif %}
+
+                    <!-- edit button -->
+                    <a href="{{ url_for('edit_movie', movie_id=movie.id) }}">Edit</a>
+
+                    <!-- Delete button -->
+                    <form method="POST" action="{{ url_for('delete_movie', movie_id=movie.id) }}" style="display:inline;" onsubmit="return confirm('Delete {{ movie.title }}?');">
+                        <button type="submit">Delete</button>
+                    </form>
+                </li>
+
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No movies found.</p>
+    {% endif %}
+    <!-- Link to add a new movie -->
+    <a href="{{ url_for('add_movie') }}">Add a New Movie</a>
+</body>
+</html>
