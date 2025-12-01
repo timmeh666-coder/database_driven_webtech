@@ -13,34 +13,43 @@
         </p>
     {% endif %}
 
+    <!-- Container for movies now using my api -->
+    <ul id="movie-list"></ul>
 
-    <!-- Displaying all movies -->
-    {% if movies %}
-        <ul>
-            {% for movie in movies %}
-                <li>
-                    <strong>{{ movie.title }}</strong>
-                    {% if movie.year %} ({{ movie.year }}){% endif %}
-                    {% if movie.director %} - Directed by {{ movie.director }}{% endif %}
-                    {% if movie.genre %} - Genre: {{ movie.genre }}{% endif %}
-
-                    <!-- edit button -->
-                    <a href="{{ url_for('main.edit_movie', movie_id=movie.id) }}">Edit</a>
-
-                    <!-- Delete button -->
-                    <form method="POST" action="{{ url_for('main.delete_movie', movie_id=movie.id) }}" style="display:inline;" onsubmit="return confirm('Delete {{ movie.title }}?');">
-                        <button type="submit">Delete</button>
-                    </form>
-                </li>
-
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No movies found.</p>
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.add_movie') }}">Add a New Movie</a>
     {% endif %}
-    <!-- Link to add a new movie -->
-    <a href="{{ url_for('main.add_movie') }}">Add a New Movie</a>
     <br>
     <a href="test.html">Error Page (will go to test.html but does not exist)</a>
+
+    <!-- Fetch movies from API and populate list -->
+    <script>
+    fetch('/api/movies')
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById('movie-list');
+        if (data.length === 0) {
+            list.innerHTML = '<p>No movies found.</p>';
+            return;
+        }
+        data.forEach(movie => {
+          const li = document.createElement('li');
+
+          li.innerHTML = `
+            <strong>${movie.title}</strong>
+            ${movie.year ? `(${movie.year})` : ''}
+            ${movie.director ? `- Directed by ${movie.director}` : ''}
+            ${movie.genre ? `- Genre: ${movie.genre}` : ''}
+
+            ${movie.id ? `<a href="/edit_movie/${movie.id}">Edit</a>` : ''}
+            ${movie.id ? `<form method="POST" action="/delete_movie/${movie.id}" style="display:inline;" onsubmit="return confirm('Delete ${movie.title}?');">
+                <button type="submit">Delete</button>
+            </form>` : ''}
+          `;
+          list.appendChild(li);
+        });
+      })
+      .catch(err => console.error('Error fetching movies:', err));
+    </script>
 </body>
 </html>

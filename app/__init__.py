@@ -33,6 +33,9 @@ def create_app():
     from .routes import main
     app.register_blueprint(main)
 
+    from .api import api
+    app.register_blueprint(api)
+
     with app.app_context():
         db.create_all()
 
